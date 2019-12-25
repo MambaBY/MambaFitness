@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Fitness.BL.Controller;
+using Fitness.BL.Model;
 
 
 namespace Fitness.CMD
@@ -16,6 +17,8 @@ namespace Fitness.CMD
 
 
             var userController = new UserController(name);
+            var eatingController = new EatingController(userController.CurrentUser);
+
             if (userController.IsNewUser)
             {
                Console.WriteLine("Введите ваш пол ");
@@ -29,7 +32,44 @@ namespace Fitness.CMD
             }
 
             Console.WriteLine(userController.CurrentUser);
+            Console.WriteLine("Что вы хотите сделать?");
+            Console.WriteLine("Е - ввести прием пищи");
+          
+            var key = Console.ReadKey();
+            Console.WriteLine();
+
+            if (key.Key == ConsoleKey.E)
+            {
+                var foods = EnterEating();
+                eatingController.Add(foods.Food, foods.Weight);
+
+                foreach (var item in eatingController.Eating.Foods)
+                {
+                    Console.WriteLine($"\t {item.Key} - {item.Value}");
+                }
+            }
+
             Console.ReadLine();
+        }
+
+        private static (Food Food, double Weight) EnterEating()
+        {
+            Console.WriteLine("Введите имя продукта: ");
+            var food = Console.ReadLine();
+
+            
+            var callories = ParseDouble("Количество каллорий");
+            var prots = ParseDouble("Количество белка");
+            var fats = ParseDouble("Количество жиров");
+            var carbs = ParseDouble("Количество углеводов");
+
+            var weight = ParseDouble("Вес порции");
+
+
+            var product = new Food(food, callories, prots,fats, carbs);
+
+            return (Food: product, Weight: weight);
+
         }
 
         private static DateTime ParseDataTime()
@@ -63,7 +103,7 @@ namespace Fitness.CMD
                 }
                 else
                 {
-                    Console.WriteLine($"Неверный формат {name}.");
+                    Console.WriteLine($"Неверный формат поля {name}.");
                 }
             }
         }
